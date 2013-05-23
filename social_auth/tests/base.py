@@ -1,5 +1,6 @@
 import re
 import unittest
+import six
 from sgmllib import SGMLParser
 from django.conf import settings
 
@@ -75,6 +76,10 @@ class SocialAuthTestsCase(unittest.TestCase):
         if use_cookies:
             agent.add_handler(HTTPCookieProcessor(self.get_jar()))
         request.add_header('User-Agent', USER_AGENT)
+        if six.PY3:
+            if data is not None:
+                data = data.encode('utf-8')
+            return b''.join(agent.open(request, data=data).readlines()).decode('utf-8')
         return ''.join(agent.open(request, data=data).readlines())
 
     def get_redirect(self, url, data=None, use_cookies=False):
